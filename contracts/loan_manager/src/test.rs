@@ -1025,7 +1025,6 @@ fn test_overdue_partial_repayment_still_reduces_principal() {
     );
 }
 
-
 #[test]
 fn test_set_late_fee_rate_rejects_above_cap() {
     let env = Env::default();
@@ -1947,7 +1946,8 @@ fn test_interest_calculation_overflow_safety() {
     manager.approve_loan(&loan_id);
 
     // Fast forward a long duration
-    env.ledger().set_sequence_number(env.ledger().sequence() + 1_000_000);
+    env.ledger()
+        .set_sequence_number(env.ledger().sequence() + 1_000_000);
 
     // Should not panic, should either calculate correctly or return AmountTooLarge error on next interaction
     let result = manager.try_repay(&borrower, &loan_id, &100);
@@ -1963,7 +1963,12 @@ fn test_late_fee_cap_at_total_debt_limit() {
     let (manager, nft_client, pool_client, token_id, _token_admin) = setup_test(&env);
     let borrower = Address::generate(&env);
 
-    nft_client.mint(&borrower, &600, &soroban_sdk::BytesN::from_array(&env, &[0u8; 32]), &None);
+    nft_client.mint(
+        &borrower,
+        &600,
+        &soroban_sdk::BytesN::from_array(&env, &[0u8; 32]),
+        &None,
+    );
 
     let stellar_token = StellarAssetClient::new(&env, &token_id);
     stellar_token.mint(&pool_client, &10_000);
@@ -1973,10 +1978,12 @@ fn test_late_fee_cap_at_total_debt_limit() {
     manager.approve_loan(&loan_id);
 
     // Jump far into the future so late fees accrue significantly
-    env.ledger().set_sequence_number(env.ledger().sequence() + 100_000);
+    env.ledger()
+        .set_sequence_number(env.ledger().sequence() + 100_000);
 
     let loan = manager.get_loan(&loan_id);
-    let total_outstanding = (loan.amount + loan.accrued_interest + loan.accrued_late_fee) - (loan.principal_paid + loan.interest_paid + loan.late_fee_paid);
+    let total_outstanding = (loan.amount + loan.accrued_interest + loan.accrued_late_fee)
+        - (loan.principal_paid + loan.interest_paid + loan.late_fee_paid);
 
     // Total debt should be capped at 2x original principal (2000)
     assert!(total_outstanding <= 2000);
@@ -1991,7 +1998,12 @@ fn test_late_fees_stop_accruing_when_principal_paid() {
     let (manager, nft_client, pool_client, token_id, _token_admin) = setup_test(&env);
     let borrower = Address::generate(&env);
 
-    nft_client.mint(&borrower, &600, &soroban_sdk::BytesN::from_array(&env, &[0u8; 32]), &None);
+    nft_client.mint(
+        &borrower,
+        &600,
+        &soroban_sdk::BytesN::from_array(&env, &[0u8; 32]),
+        &None,
+    );
 
     let stellar_token = StellarAssetClient::new(&env, &token_id);
     stellar_token.mint(&pool_client, &10_000);
@@ -2004,7 +2016,8 @@ fn test_late_fees_stop_accruing_when_principal_paid() {
     manager.repay(&borrower, &loan_id, &1000);
 
     // Jump into late fee territory
-    env.ledger().set_sequence_number(env.ledger().sequence() + 5000);
+    env.ledger()
+        .set_sequence_number(env.ledger().sequence() + 5000);
 
     let loan = manager.get_loan(&loan_id);
     // Should have zero late fees because principal is paid
