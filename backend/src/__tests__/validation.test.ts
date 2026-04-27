@@ -38,19 +38,25 @@ describe("Input Validation", () => {
         rows: [{ current_score: 500 }],
       });
 
-      const response = await request(app).post("/api/simulate").send({
-        userId: "user123",
-        amount: 500,
-      });
+      const response = await request(app)
+        .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.1")
+        .send({
+          userId: "user123",
+          amount: 500,
+        });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
 
     it("should reject missing userId", async () => {
-      const response = await request(app).post("/api/simulate").send({
-        amount: 500,
-      });
+      const response = await request(app)
+        .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.2")
+        .send({
+          amount: 500,
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -58,19 +64,25 @@ describe("Input Validation", () => {
     });
 
     it("should reject missing amount", async () => {
-      const response = await request(app).post("/api/simulate").send({
-        userId: "user123",
-      });
+      const response = await request(app)
+        .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.3")
+        .send({
+          userId: "user123",
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
 
     it("should reject negative amount", async () => {
-      const response = await request(app).post("/api/simulate").send({
-        userId: "user123",
-        amount: -100,
-      });
+      const response = await request(app)
+        .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.4")
+        .send({
+          userId: "user123",
+          amount: -100,
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -78,30 +90,39 @@ describe("Input Validation", () => {
     });
 
     it("should reject amount exceeding maximum", async () => {
-      const response = await request(app).post("/api/simulate").send({
-        userId: "user123",
-        amount: 2000000,
-      });
+      const response = await request(app)
+        .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.5")
+        .send({
+          userId: "user123",
+          amount: 2000000,
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
 
     it("should reject zero amount", async () => {
-      const response = await request(app).post("/api/simulate").send({
-        userId: "user123",
-        amount: 0,
-      });
+      const response = await request(app)
+        .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.6")
+        .send({
+          userId: "user123",
+          amount: 0,
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
 
     it("should reject empty userId", async () => {
-      const response = await request(app).post("/api/simulate").send({
-        userId: "",
-        amount: 500,
-      });
+      const response = await request(app)
+        .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.7")
+        .send({
+          userId: "",
+          amount: 500,
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -110,6 +131,7 @@ describe("Input Validation", () => {
     it("should reject userId that is too long", async () => {
       const response = await request(app)
         .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.8")
         .send({
           userId: "a".repeat(101),
           amount: 500,
@@ -120,10 +142,13 @@ describe("Input Validation", () => {
     });
 
     it("should reject non-numeric amount", async () => {
-      const response = await request(app).post("/api/simulate").send({
-        userId: "user123",
-        amount: "five hundred",
-      });
+      const response = await request(app)
+        .post("/api/simulate")
+        .set("X-Forwarded-For", "10.0.0.9")
+        .send({
+          userId: "user123",
+          amount: "five hundred",
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -137,14 +162,18 @@ describe("Input Validation", () => {
         .mockResolvedValueOnce({ rows: [{ current_score: 500 }] }) // score
         .mockResolvedValueOnce({ rows: [] }); // events
 
-      const response = await request(app).get("/api/history/user123");
+      const response = await request(app)
+        .get("/api/history/user123")
+        .set("X-Forwarded-For", "10.0.1.1");
 
       expect(response.status).toBe(200);
       expect(response.body.userId).toBe("user123");
     });
 
     it("should reject empty userId", async () => {
-      const response = await request(app).get("/api/history/");
+      const response = await request(app)
+        .get("/api/history/")
+        .set("X-Forwarded-For", "10.0.1.2");
 
       expect(response.status).toBe(404);
     });

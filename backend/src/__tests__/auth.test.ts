@@ -175,10 +175,10 @@ describe("Auth API", () => {
       expect(lastResponse.body.success).toBe(false);
     });
 
-    it("should return 429 and Retry-After after 5 login attempts from same IP", async () => {
+    it("should return 429 and Retry-After after 10 login attempts from same IP", async () => {
       const keypair = Keypair.random();
       let lastResponse: any;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 11; i++) {
         lastResponse = await request(app)
           .post("/api/auth/login")
           .set("X-Forwarded-For", "5.6.7.8")
@@ -192,10 +192,10 @@ describe("Auth API", () => {
       expect(lastResponse.headers["retry-after"]).toBeDefined();
     });
 
-    it("should return 429 after 5 login attempts with same public key", async () => {
+    it("should return 429 after 10 login attempts with same public key", async () => {
       const keypair = Keypair.random();
       let lastResponse: any;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 11; i++) {
         lastResponse = await request(app)
           .post("/api/auth/login")
           .set("X-Forwarded-For", `9.9.9.${i}`)
